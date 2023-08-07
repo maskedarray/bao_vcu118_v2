@@ -1,0 +1,10 @@
+bao-baremetal-guest/build/
+bao-hypervisor/build/
+bao-hypervisor/bin/
+bao-hypervisor/.git/
+bao-hypervisor/.vscode/
+opensbi/build/
+opensbi/.git/
+bitstream/
+linux/
+linux_image/
