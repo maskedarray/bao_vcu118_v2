@@ -160,15 +160,15 @@ void main(void){
         //irq_set_handler(UART_IRQ_ID, uart_rx_handler);
         irq_set_handler(TIMER_IRQ_ID, timer_handler);
         irq_set_handler(IPI_IRQ_ID, ipi_handler);
-        irq_set_handler(PMU_IRQ_ID, pmu_handler);
+        //irq_set_handler(PMU_IRQ_ID, pmu_handler);
 
         uart_enable_rxirq();
 
         //timer_set(TIMER_INTERVAL);
         //irq_enable(TIMER_IRQ_ID);
         //irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
-        irq_enable(PMU_IRQ_ID);
-        irq_set_prio(PMU_IRQ_ID, IRQ_MAX_PRIO);
+        //irq_enable(PMU_IRQ_ID);
+        //irq_set_prio(PMU_IRQ_ID, IRQ_MAX_PRIO);
 
         master_done = true;
     }
@@ -180,7 +180,7 @@ void main(void){
 
     while(!master_done);
 
-    pmu_setup();
+    //pmu_setup();
 
     spin_lock(&print_lock);
     printf("cpu %d up\n", get_cpuid());

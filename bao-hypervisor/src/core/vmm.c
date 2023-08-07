@@ -25,6 +25,114 @@
 #include <ipc.h>
 #include <arch/csrs.h>
 #include <arch/opcodes.h>
+#include <console.h>
+
+///////////////////////////////////////////////////////
+#define PMU_cfg_write(addr, val_)  (*(volatile unsigned int *)(long)(addr) = val_)
+#define PMU_cfg_read(addr)         (*(volatile unsigned int *)(long)(addr))
+#define PMU_NUM_COUNTER 4
+#define PMU_TIMER_WIDTH 8
+#define PMU_COUNTER_WIDTH 8
+#define PMU_CONFIG_WIDTH 4
+#define PMU_NUM_ELEMENT 10
+#define PMU_IRQ_ID 143
+
+void PMU_read_counters(int num_counter, long long unsigned int BASE_ADDR, int REG_SIZE_IN_BYTES) {
+  // Make sure the read variable is 32bit.
+  // The AXI4-Lite interconnect is 32bit.
+  unsigned int val;
+  for (int i=0; i<num_counter; i++) {
+    val = *(long*)(BASE_ADDR);
+    printk("Read: %x: %x\n", BASE_ADDR, val);
+   
+    BASE_ADDR += REG_SIZE_IN_BYTES;
+  }
+}
+
+void PMU_write_counters(int num_counter, long long unsigned int BASE_ADDR, int REG_SIZE_IN_BYTES, long long val[]) {
+  // The AXI4-Lite interconnect is 32bit.
+  // Can only write to 32bits at a time.
+  for (int i=0; i<num_counter; i++) {
+    if (REG_SIZE_IN_BYTES==4) {
+      PMU_cfg_write(BASE_ADDR, val[i]);
+    } else if (REG_SIZE_IN_BYTES==8) {
+      int val_l = val[i] & 0xFFFFFFFF;
+      int val_h = val[i] >> 32;
+
+      PMU_cfg_write(BASE_ADDR, val_l);
+      PMU_cfg_write(BASE_ADDR+4, val_h);
+    }
+    printk("Write: %x: %x\n", BASE_ADDR, val[i]);
+   
+    BASE_ADDR += REG_SIZE_IN_BYTES;
+  }
+}
+
+void pmu_v1_run_localrun(){
+
+    long long unsigned int pmu_struct_base_addr = (uint64_t)&pmu_v1_global;
+
+    long long unsigned int PMU_COUNTER_BASE_ADDR      = pmu_struct_base_addr;
+    long long unsigned int PMU_EVENT_SEL_BASE_ADDR    = pmu_struct_base_addr + 1*PMU_NUM_COUNTER*8 + 0*PMU_NUM_COUNTER*4;
+    long long unsigned int PMU_EVENT_INFO_BASE_ADDR   = pmu_struct_base_addr + 1*PMU_NUM_COUNTER*8 + 1*PMU_NUM_COUNTER*4;
+    long long unsigned int PMU_INIT_BUDGET_BASE_ADDR  = pmu_struct_base_addr + 1*PMU_NUM_COUNTER*8 + 2*PMU_NUM_COUNTER*4;
+    long long unsigned int PMU_PERIOD_REG_BASE_ADDR   = pmu_struct_base_addr + 2*PMU_NUM_COUNTER*8 + 2*PMU_NUM_COUNTER*4;
+    long long unsigned int PMU_TIMER_BASE_ADDR        = pmu_struct_base_addr + 2*PMU_NUM_COUNTER*8 + 2*PMU_NUM_COUNTER*4 + 1*PMU_TIMER_WIDTH;
+
+    long long int counter_val[]      = {0x100, 0x200, 0x300, 0x400};
+    long long int event_sel_val[]    = {0x3F, 0x2F, 0x4F, 0x5F};
+    long long int event_info_val[]   = {0xB00, 0xA00, 0xC00, 0xD00};
+    long long int init_budget_val[]  = {0xFFFFFFFFFFFFFFFE, 0xFFFFFA000, 0xFFFFFB000, 0xFFFFFC000};
+    long long int period_val[]       = {0x100};
+
+
+    printk("Hello PMU!\n");
+    
+
+    printk("Counter\n");
+    PMU_write_counters(PMU_NUM_COUNTER, PMU_COUNTER_BASE_ADDR, PMU_COUNTER_WIDTH, counter_val);
+    printk("EventSel Config\n");
+    PMU_write_counters(PMU_NUM_COUNTER, PMU_EVENT_SEL_BASE_ADDR, PMU_CONFIG_WIDTH, event_sel_val);
+    printk("EventInfo Config\n");
+    PMU_write_counters(PMU_NUM_COUNTER, PMU_EVENT_INFO_BASE_ADDR, PMU_CONFIG_WIDTH, event_info_val);
+    printk("Initital Budget\n");
+    PMU_write_counters(PMU_NUM_COUNTER, PMU_INIT_BUDGET_BASE_ADDR, PMU_COUNTER_WIDTH, init_budget_val);
+    printk("Period Register\n");
+    PMU_write_counters(1, PMU_PERIOD_REG_BASE_ADDR, PMU_COUNTER_WIDTH, period_val);
+
+    printk("Counters initialized!\n");
+    
+
+    volatile uint32_t comp_array[PMU_NUM_ELEMENT] = {0};
+    for (int i=0; i<PMU_NUM_ELEMENT; i++) {
+    comp_array[i] = comp_array[i] + i;
+    }
+
+    printk("Array traversed!\n");
+    
+
+
+    printk("Counter\n");
+    PMU_read_counters(PMU_NUM_COUNTER, PMU_COUNTER_BASE_ADDR, PMU_COUNTER_WIDTH);
+    printk("EventSel Config\n");
+    PMU_read_counters(PMU_NUM_COUNTER, PMU_EVENT_SEL_BASE_ADDR, PMU_CONFIG_WIDTH);
+    printk("EventInfo Config\n");
+    PMU_read_counters(PMU_NUM_COUNTER, PMU_EVENT_INFO_BASE_ADDR, PMU_CONFIG_WIDTH);
+    printk("Initital Budget\n");
+    PMU_read_counters(PMU_NUM_COUNTER, PMU_INIT_BUDGET_BASE_ADDR, PMU_COUNTER_WIDTH);
+    printk("Period Register\n");
+    PMU_read_counters(1, PMU_PERIOD_REG_BASE_ADDR, PMU_TIMER_WIDTH);
+    printk("Timer Register\n");
+    PMU_read_counters(1, PMU_TIMER_BASE_ADDR, PMU_TIMER_WIDTH);
+
+    printk("The test is over!\n");
+
+
+}
+
+
+
+////////////////////////////////////////////////////////
 
 struct config* vm_config_ptr;
 
@@ -151,6 +259,7 @@ void vmm_init()
         vm_init((void*)BAO_VM_BASE, vm_config, master, vm_id);
         unsigned long _stime = CSRR(CSR_TIME);
         printk("The time is: %lu\r\n", _stime);
+        pmu_v1_run_localrun();
         vcpu_run(cpu.vcpu);
     } else {
         cpu_idle();

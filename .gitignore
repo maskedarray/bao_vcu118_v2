@@ -8,3 +8,5 @@ opensbi/.git/
 bitstream/
 linux/
 linux_image/
+.vscode/settings.json
+fw_payload.elf

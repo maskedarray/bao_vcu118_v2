@@ -25,6 +25,22 @@
 #include <vmm.h>
 #include <arch/csrs.h>
 #include <arch/opcodes.h>
+#include <fences.h>
+
+
+//////////////////////////////////////////////
+
+
+volatile pmu_v1_global_t pmu_v1_global
+    __attribute__((section(".devices")));
+
+
+void pmu_v1_init_localinit(){
+    mem_map_dev(&cpu.as, (void*)&pmu_v1_global, 0x10404000,1);
+    fence_sync_write();
+}
+
+//////////////////////////////////////////////
 
 
 
@@ -56,14 +72,16 @@ void init(uint64_t cpu_id, uint64_t load_addr, uint64_t config_addr)
     mem_init(load_addr, config_addr);
 
     /* -------------------------------------------------------------- */
-
+    
     if (cpu.id == CPU_MASTER) {
         console_init();
         printk("Bao Hypervisor\n\r");
     }
+    printk("Uart page size is: \n\r");
+    pmu_v1_init_localinit();
+    printk("Uart page size is: \n\r");
 
     interrupts_init();
-
 
     vmm_init();
 
