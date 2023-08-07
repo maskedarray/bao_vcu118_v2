@@ -30,6 +30,8 @@ typedef struct {
 extern volatile pmu_v1_global_t pmu_v1_global
     __attribute__((section(".devices")));
 
+void pmu_v1_interrupt_handler();
+
 void console_init();
 void console_write(char const* const str);
 
