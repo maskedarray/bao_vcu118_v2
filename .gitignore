@@ -8,3 +8,11 @@ opensbi/.git/
 bitstream/
 linux/
 linux_image/
+.vscode/
+*.bin
+*.elf
+*.d
+*.o
+bao-hypervisor/configs/alsaqr-baremetal/config.S
+bao-hypervisor/configs/alsaqr-linux/config.S
+/fw_payload.elf
