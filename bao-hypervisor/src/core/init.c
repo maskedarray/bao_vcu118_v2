@@ -83,6 +83,7 @@ void init(uint64_t cpu_id, uint64_t load_addr, uint64_t config_addr)
 
     interrupts_init();
 
+
     vmm_init();
 
     /* Should never reach here */

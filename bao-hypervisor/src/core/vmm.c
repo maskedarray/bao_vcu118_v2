@@ -173,7 +173,7 @@ void vmm_init()
     bool assigned = false;
     size_t vm_id = 0;
     vm_config_t *vm_config = NULL;
-
+    printk("Uart page size is: \n\r");
     /**
      * Assign cpus according to vm affinity.
      */
@@ -227,7 +227,7 @@ void vmm_init()
     }
 
     cpu_sync_barrier(&cpu_glb_sync);
-
+    printk("Uart page size is: \n\r");
     if (assigned) {
         vm_config = &vm_config_ptr->vmlist[vm_id];
         if (master) {
@@ -248,15 +248,16 @@ void vmm_init()
     }
 
     cpu_sync_barrier(&cpu_glb_sync);
-
+    printk("Uart page size is: \n\r");
     if (cpu.id == CPU_MASTER) {
         mem_free_vpage(&cpu.as, (void*)vm_assign, vmass_npages, true);
     }
 
     ipc_init(vm_config, master);
-
+    printk("Uart page size is: final \n\r");
     if (assigned) {
         vm_init((void*)BAO_VM_BASE, vm_config, master, vm_id);
+        printk("Uart page size is: final2 \n\r");
         unsigned long _stime = CSRR(CSR_TIME);
         printk("The time is: %lu\r\n", _stime);
         pmu_v1_run_localrun();

@@ -30,7 +30,7 @@ struct config config = {
                     }
                 },
 
-                .dev_num = 3,
+                .dev_num = 2,
                 .devs =  (struct dev_region[]) {
                     {
                         .pa = 0x40000000,   
@@ -45,13 +45,6 @@ struct config config = {
                         .size = 0x00001000,  
                         .interrupt_num = 4,
                         .interrupts = (uint64_t[]) {4,5,6,7}
-                    },
-		    {
-                        .pa = 0x10404000,   
-                        .va = 0x10404000,  
-                        .size = 0x00001000,  
-                        .interrupt_num = 4,
-                        .interrupts = (uint64_t[]) {142,143,144,145}
                     },
                 },
 
