@@ -82,7 +82,7 @@ void pmu_v1_run_localrun(){
     long long int counter_val[]      = {0x100, 0x200, 0x300, 0x400};
     long long int event_sel_val[]    = {0x3F, 0x2F, 0x4F, 0x5F};
     long long int event_info_val[]   = {0xB00, 0xA00, 0xC00, 0xD00};
-    long long int init_budget_val[]  = {0xFFFFFFFFFFFFFFFE, 0xFFFFFA000, 0xFFFFFB000, 0xFFFFFC000};
+    long long int init_budget_val[]  = {0xFFFFFFFFFFFFFF10, 0xFFFFFA000, 0xFFFFFB000, 0xFFFFFC000};
     long long int period_val[]       = {0x100};
 
 
@@ -103,10 +103,10 @@ void pmu_v1_run_localrun(){
     printk("Counters initialized!\n");
     
 
-    volatile uint32_t comp_array[PMU_NUM_ELEMENT] = {0};
-    for (int i=0; i<PMU_NUM_ELEMENT; i++) {
-    comp_array[i] = comp_array[i] + i;
-    }
+    // volatile uint32_t comp_array[PMU_NUM_ELEMENT] = {0};
+    // for (int i=0; i<PMU_NUM_ELEMENT; i++) {
+    // comp_array[i] = comp_array[i] + i;
+    // }
 
     printk("Array traversed!\n");
     

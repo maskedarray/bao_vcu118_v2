@@ -57,7 +57,7 @@ void pmu_handler(){
 #define TIMER_WIDTH 8
 #define COUNTER_WIDTH 8
 #define CONFIG_WIDTH 4
-#define NUM_ELEMENT 10
+#define NUM_ELEMENT 1000
 #define PMU_IRQ_ID 143
 
 void read_counters(int num_counter, long long unsigned int BASE_ADDR, int REG_SIZE_IN_BYTES) {
@@ -185,6 +185,14 @@ void main(void){
     spin_lock(&print_lock);
     printf("cpu %d up\n", get_cpuid());
     spin_unlock(&print_lock);
+
+    volatile uint32_t comp_array[NUM_ELEMENT] = {0};
+    for (int j = 0; j<1000; j++){
+      for (int i=0; i<NUM_ELEMENT; i++) {
+        comp_array[i] = comp_array[i] + i;
+      }
+      printf("Bao bare-metal checkpoint!\n");
+    }
 
     while(1) wfi();
 }
