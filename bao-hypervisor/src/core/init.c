@@ -26,21 +26,7 @@
 #include <arch/csrs.h>
 #include <arch/opcodes.h>
 #include <fences.h>
-
-
-//////////////////////////////////////////////
-
-
-volatile pmu_v1_global_t pmu_v1_global
-    __attribute__((section(".devices")));
-
-
-void pmu_v1_init_localinit(){
-    mem_map_dev(&cpu.as, (void*)&pmu_v1_global, 0x10404000,1);
-    fence_sync_write();
-}
-
-//////////////////////////////////////////////
+#include <pmu_v1.h>
 
 
 
@@ -50,22 +36,6 @@ void init(uint64_t cpu_id, uint64_t load_addr, uint64_t config_addr)
      * These initializations must be executed first and in fixed order.
      */
 
-    
-        {
-        unsigned long _stime = CSRR(CSR_TIME);
-        unsigned long _stime2 = CSRR(CSR_TIME);
-        printk("The time is: %lu\r\n", _stime);
-        
-        volatile uint32_t comp_array[100] = {0};
-        for (int i=0; i<100; i++) {
-            comp_array[i] = comp_array[i] + i;
-            //printf("Array: %d\r\n", comp_array[i]);
-        }
-
-        _stime2 = CSRR(CSR_TIME);
-        printk("The time is: %lu\r\n", _stime2);
-
-    }
 
 
     cpu_init(cpu_id, load_addr);
@@ -77,12 +47,11 @@ void init(uint64_t cpu_id, uint64_t load_addr, uint64_t config_addr)
         console_init();
         printk("Bao Hypervisor\n\r");
     }
-    printk("Uart page size is: \n\r");
-    pmu_v1_init_localinit();
-    printk("Uart page size is: \n\r");
+    printk("Initializing PMU.... \n\r");
+    pmu_v1_init();
+    printk("PMU initialized! \n\r");
 
     interrupts_init();
-
 
     vmm_init();
 
