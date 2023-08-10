@@ -24,11 +24,7 @@
 #include <spinlock.h>
 #include <arch/csrs.h>
 
-void pmu_v1_interrupt_handler(){
-    
-    // printk("PMU interrupt in hypervisor\n\r");
-    
-}
+
 
 volatile bao_uart_t uart
     __attribute__((section(".devices"), aligned(PAGE_SIZE)));
