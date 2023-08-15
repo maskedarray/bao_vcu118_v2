@@ -24,6 +24,7 @@
 #include <vm.h>
 #include <arch/csrs.h>
 #include <fences.h>
+#include <console.h>
 
 void interrupts_arch_init()
 {
@@ -103,7 +104,10 @@ void interrupts_arch_handle()
             // sbi_set_timer(-1);
             break;
         case SCAUSE_CODE_SEI:
+            CSRC(sie, SIE_SEIE);
             plic_handle();
+            // printk("handled plic interrupt! \n\r");
+            CSRS(sie, SIE_SEIE);
             break;
         default:
             // WARNING("unkown interrupt");

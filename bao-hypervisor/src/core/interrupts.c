@@ -21,6 +21,7 @@
 #include <bitmap.h>
 #include <string.h>
 #include <console.h>
+#include <pmu_v1.h>
 
 BITMAP_ALLOC(hyp_interrupt_bitmap, MAX_INTERRUPTS);
 BITMAP_ALLOC(global_interrupt_bitmap, MAX_INTERRUPTS);
@@ -53,8 +54,8 @@ inline void interrupts_init()
 
     if (cpu.id == CPU_MASTER) {
         interrupts_reserve(IPI_CPU_MSG, cpu_msg_handler);
-        interrupts_reserve(143, pmu_v1_interrupt_handler);
-        interrupts_cpu_enable(143, true);
+        interrupts_reserve(PMU_V1_INTR_ID1, pmu_v1_interrupt_handler);
+        interrupts_cpu_enable(PMU_V1_INTR_ID1, true);
     }
 
     interrupts_cpu_enable(IPI_CPU_MSG, true);
