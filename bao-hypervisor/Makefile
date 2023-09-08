@@ -136,7 +136,7 @@ ifeq ($(DEBUG), y)
 	debug_flags:=-g
 endif
 
-override CFLAGS+=-O$(OPTIMIZATIONS) -Wall -Werror -ffreestanding -std=gnu11 \
+override CFLAGS+=-O$(OPTIMIZATIONS) -Wall -w -ffreestanding -std=gnu11 \
 	 -mstrict-align -fno-pic $(arch-cflags) $(platform-cflags) $(CPPFLAGS) \
 	 $(debug_flags)
 

@@ -2,7 +2,7 @@
 
 #include <config.h>
 
-VM_IMAGE(linux_image, XSTR(/home/ubuntu_20/BAO-VCU-118_v2/bao-baremetal-guest/build/alsaqr/baremetal.bin));
+VM_IMAGE(linux_image, XSTR(/home/a26rahma/work/alsaqr/bao_vcu118_v2/bao-baremetal-guest/build/alsaqr/baremetal.bin));
 
 struct config config = {
     

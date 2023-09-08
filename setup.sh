@@ -4,8 +4,8 @@ echo "exporting RISCV"
 
 export ARCH=riscv
 export CROSS_COMPILE=riscv64-unknown-elf-
-export RISCV=/opt/riscv64
-export PATH=/opt/riscv64/bin:$PATH
+export RISCV=/opt/riscv
+export PATH=/opt/riscv/bin:$PATH
 export PLATFORM=alsaqr
 export CONFIG=alsaqr-baremetal
 export CONFIG_BUILTIN=y
