@@ -1,3 +1,6 @@
+# Local Repo Instructions
+Change paths correctly in setup.sh file
+Change paths correctly in bao-hypervisor/configs/config-X/config.c file
 # Prologue
 Follow the same prologue as [here](https://github.com/ninolomata/bao-cva6-guide).
 
