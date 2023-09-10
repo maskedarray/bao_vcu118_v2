@@ -8,12 +8,15 @@
 #include <fences.h>
 #include <spinlock.h>
 #include <printk.h>
+#include <arch/csrs.h>
+#include <arch/opcodes.h>
 
 // All Widths are in Bytes
 #define NUM_COUNTER 4
 #define COUNTER_WIDTH 8
 #define CONFIG_WIDTH 4
 #define TIMER_WIDTH 8
+#define MEMGUARD_PERIOD 2500000
 
 // For the array traversal
 #define NUM_ELEMENT 100
@@ -84,11 +87,11 @@ void pmu_v1_run(){
     uint64_t PMU_PERIOD_REG_BASE_ADDR   = PMU_COUNTER_BASE_ADDR + 2*NUM_COUNTER*COUNTER_WIDTH + 2*NUM_COUNTER*CONFIG_WIDTH;
     uint64_t PMU_TIMER_BASE_ADDR        = PMU_COUNTER_BASE_ADDR + 2*NUM_COUNTER*COUNTER_WIDTH + 2*NUM_COUNTER*CONFIG_WIDTH + 1*TIMER_WIDTH;
 
-    uint64_t counter_val[]      = {0x100, 0x200, 0x300, 0x400};
-    uint32_t event_sel_val[]    = {0x1F002F, 0x1F003F, 0x1F004F, 0x1F005F};
+    uint64_t counter_val[]      = {0xFFFFFFFFFFFFE400 , 0x1, 0x1, 0x1};
+    uint32_t event_sel_val[]    = {0x1F, 0x2F, 0x3F, 0x4F};
     uint32_t event_info_val[]   = {0xA00, 0xB00, 0xC00, 0xD00};
-    uint64_t init_budget_val[]  = {0xFFFFFFFFFFFFFFFE, 0xFFFFFA000, 0xFFFFFB000, 0xFFFFFC000};
-    uint64_t period_val[]       = {0x0};
+    uint64_t init_budget_val[]  = {0xFFFFFFFFFFFFE400 , 0x1, 0x1, 0x1};
+    uint64_t period_val[]       = {MEMGUARD_PERIOD};
 
 
 
@@ -133,7 +136,16 @@ void pmu_v1_run(){
 
 void pmu_v1_interrupt_handler(){
     
-    // printk("PMU interrupt in hypervisor\n\r");
+    uint64_t present_time = CSRR(CSR_CYCLE);
+    
+    uint64_t end_time;
+    asm volatile ("lw %0, 0(%1)" : "=r" (end_time) : "r" (&pmu_v1_global.timer));
+    
+    end_time = present_time + (MEMGUARD_PERIOD - end_time);
+    // printk("interrupt occurred %x-%x\r\n",(uint32_t)(end_time), (uint32_t)present_time);
+    while(present_time < end_time){
+      present_time = CSRR(CSR_CYCLE);
+    }
     
 }
 
