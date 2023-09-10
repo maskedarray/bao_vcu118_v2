@@ -24,5 +24,10 @@ cd ../opensbi
 make3
 cd ..
 cp opensbi/build/platform/fpga/alsaqr/firmware/fw_payload.elf ./fw_payload.elf
+cp bao-baremetal-guest/build/alsaqr/baremetal.elf .
+cp bao-hypervisor/bin/alsaqr/builtin-configs/alsaqr-baremetal/bao.elf .
+riscv64-unknown-elf-objcopy --only-keep-debug baremetal.elf baremetal.debug
+riscv64-unknown-elf-objcopy --only-keep-debug bao.elf bao.debug
+riscv64-unknown-elf-objcopy --only-keep-debug fw_payload.elf fw_payload.debug
 
 alias gdb='riscv64-unknown-elf-gdb fw_payload.elf'
