@@ -11,18 +11,40 @@
 #include <arch/csrs.h>
 #include <arch/opcodes.h>
 
+// #define PROFILE_PMU_ENTRY
+#define PROFILE_PMU_EXIT
+
 // All Widths are in Bytes
 #define NUM_COUNTER 4
 #define COUNTER_WIDTH 8
 #define CONFIG_WIDTH 4
 #define TIMER_WIDTH 8
 #define MEMGUARD_PERIOD 2500000
+#define COUNTER1_INIT_BUDGET 0xFFFFFFFFFFFFE400
 
 // For the array traversal
 #define NUM_ELEMENT 100
 
 #define read_32b(addr)         (*(volatile uint32_t *)(long)(addr))
 #define write_32b(addr, val_)  (*(volatile uint32_t *)(long)(addr) = val_)
+
+#ifdef PROFILE_PMU_ENTRY
+volatile uint32_t pmu_entry_saved[64];
+volatile uint32_t pmu_entry_saved_counter = 0;
+#endif
+#ifdef PROFILE_PMU_EXIT
+volatile uint32_t pmu_exit_saved[64];
+volatile uint32_t pmu_exit_saved_counter = 0;
+#endif
+
+#ifdef PROFILE_PMU_EXIT
+void pmu_save_exit_data(){
+  uint64_t value;
+  asm volatile ("lw %0, 0(%1)" : "=r" (value) : "r" (&pmu_v1_global.counters[0]));
+  pmu_exit_saved[pmu_exit_saved_counter++] = value - COUNTER1_INIT_BUDGET;
+  // printk("interrupt occurred %d\r\n",(uint32_t)(value));
+}
+#endif
 
 volatile pmu_v1_global_t pmu_v1_global
     __attribute__((section(".devices")));
@@ -87,10 +109,10 @@ void pmu_v1_run(){
     uint64_t PMU_PERIOD_REG_BASE_ADDR   = PMU_COUNTER_BASE_ADDR + 2*NUM_COUNTER*COUNTER_WIDTH + 2*NUM_COUNTER*CONFIG_WIDTH;
     uint64_t PMU_TIMER_BASE_ADDR        = PMU_COUNTER_BASE_ADDR + 2*NUM_COUNTER*COUNTER_WIDTH + 2*NUM_COUNTER*CONFIG_WIDTH + 1*TIMER_WIDTH;
 
-    uint64_t counter_val[]      = {0xFFFFFFFFFFFFE400 , 0x1, 0x1, 0x1};
+    uint64_t counter_val[]      = {COUNTER1_INIT_BUDGET , 0x1, 0x1, 0x1};
     uint32_t event_sel_val[]    = {0x1F, 0x2F, 0x3F, 0x4F};
     uint32_t event_info_val[]   = {0xA00, 0xB00, 0xC00, 0xD00};
-    uint64_t init_budget_val[]  = {0xFFFFFFFFFFFFE400 , 0x1, 0x1, 0x1};
+    uint64_t init_budget_val[]  = {COUNTER1_INIT_BUDGET , 0x1, 0x1, 0x1};
     uint64_t period_val[]       = {MEMGUARD_PERIOD};
 
 
@@ -143,10 +165,40 @@ void pmu_v1_interrupt_handler(){
     
     end_time = present_time + (MEMGUARD_PERIOD - end_time);
     // printk("interrupt occurred %x-%x\r\n",(uint32_t)(end_time), (uint32_t)present_time);
+
+    #ifdef PROFILE_PMU_ENTRY
+    uint64_t value;
+    asm volatile ("lw %0, 0(%1)" : "=r" (value) : "r" (&pmu_v1_global.counters[0]));
+    pmu_entry_saved[pmu_entry_saved_counter++] = value;
+    // printk("interrupt occurred %d\r\n",(uint32_t)(value));
+    if(pmu_entry_saved_counter == 32){
+      pmu_entry_saved_counter = 0;
+      printk("Entry profiled data: \r\n");
+      for (int i = 0; i < 32; i++){
+        printk("%d, ", pmu_entry_saved[i]);
+      }
+      printk("\r\n");
+    }
+    #endif
+    
+    #ifdef PROFILE_PMU_EXIT
+    if(pmu_exit_saved_counter == 32){
+      pmu_exit_saved_counter = 0;
+      printk("Exit profiled data: \r\n");
+      for (int i = 0; i < 32; i++){
+        printk("%d, ", pmu_exit_saved[i]);
+      }
+      printk("\r\n");
+    }
+    #endif
+
+    
     while(present_time < end_time){
       present_time = CSRR(CSR_CYCLE);
     }
-    
+
+    //asm volatile ("lw %0, 0(%1)" : "=r" (value) : "r" (&pmu_v1_global.counters[0]));
+    //printk("interrupt occurred %d\r\n",(uint32_t)(value));
 }
 
 
