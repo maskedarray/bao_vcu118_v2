@@ -17,3 +17,7 @@ bao-hypervisor/configs/alsaqr-baremetal/config.S
 bao-hypervisor/configs/alsaqr-linux/config.S
 /fw_payload.elf
 *.debug
+bao_vcu118_v2.code-workspace
+bao.asm
+.gitignore
+baremetal.asm

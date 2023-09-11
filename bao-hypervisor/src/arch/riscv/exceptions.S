@@ -16,7 +16,9 @@
 #include <arch/bao.h>
 #include <asm_defs.h>
 #include <arch/csrs.h>
-#define PROFILE_PMU_EXIT
+//#define PROFILE_PMU_EXIT
+//#define PROFILE_PMU_CYCLE_ENTRY
+#define PROFILE_PMU_CYCLE_EXIT
 .text 
 
 .macro VM_EXIT
@@ -26,6 +28,13 @@
 
     STORE   x1, 0*REGLEN(x31)
     STORE   x2, 1*REGLEN(x31)
+    #ifdef PROFILE_PMU_CYCLE_ENTRY
+    csrr    x1, 0xc00
+    la      x2, pmu_entry_cycle
+    sw      x1, 0(x2)
+    LOAD   x1, 0*REGLEN(x31)
+    LOAD   x2, 1*REGLEN(x31)
+    #endif
     STORE   x3, 2*REGLEN(x31)
     STORE   x4, 3*REGLEN(x31)
     STORE   x5, 4*REGLEN(x31)
@@ -123,9 +132,8 @@
     LOAD   x29, 28*REGLEN(x31)
     LOAD   x30, 29*REGLEN(x31) 
 
-#ifndef PROFILE_PMU_EXIT
-    LOAD   x31, 30*REGLEN(x31) 
-#else
+
+#ifdef PROFILE_PMU_EXIT
     call pmu_save_exit_data
 
     LOAD   x1, 0*REGLEN(x31)
@@ -159,6 +167,49 @@
     LOAD   x29, 28*REGLEN(x31)
     LOAD   x30, 29*REGLEN(x31) 
     LOAD   x31, 30*REGLEN(x31)  
+#endif
+
+
+#ifdef PROFILE_PMU_CYCLE_EXIT
+    call pmu_save_exit_cycle_data
+
+    LOAD   x1, 0*REGLEN(x31)
+    LOAD   x2, 1*REGLEN(x31)
+    LOAD   x3, 2*REGLEN(x31)
+    LOAD   x4, 3*REGLEN(x31)
+    LOAD   x5, 4*REGLEN(x31)
+    LOAD   x6, 5*REGLEN(x31)
+    LOAD   x7, 6*REGLEN(x31)
+    LOAD   x8, 7*REGLEN(x31)
+    LOAD   x9, 8*REGLEN(x31)
+    LOAD   x10, 9*REGLEN(x31)
+    LOAD   x11, 10*REGLEN(x31)
+    LOAD   x12, 11*REGLEN(x31)
+    LOAD   x13, 12*REGLEN(x31)
+    LOAD   x14, 13*REGLEN(x31)
+    LOAD   x15, 14*REGLEN(x31)
+    LOAD   x16, 15*REGLEN(x31)
+    LOAD   x17, 16*REGLEN(x31)
+    LOAD   x18, 17*REGLEN(x31)
+    LOAD   x19, 18*REGLEN(x31)
+    LOAD   x20, 19*REGLEN(x31)
+    LOAD   x21, 20*REGLEN(x31)
+    LOAD   x22, 21*REGLEN(x31)
+    LOAD   x23, 22*REGLEN(x31)
+    LOAD   x24, 23*REGLEN(x31)
+    LOAD   x25, 24*REGLEN(x31)
+    LOAD   x26, 25*REGLEN(x31)
+    LOAD   x27, 26*REGLEN(x31)
+    LOAD   x28, 27*REGLEN(x31)
+    LOAD   x29, 28*REGLEN(x31)
+    LOAD   x30, 29*REGLEN(x31) 
+    LOAD   x31, 30*REGLEN(x31)  
+#endif
+
+#ifndef PROFILE_PMU_EXIT
+#ifndef PROFILE_PMU_CYCLE_EXIT
+    LOAD   x31, 30*REGLEN(x31) 
+#endif
 #endif
 
     sret
