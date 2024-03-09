@@ -151,36 +151,36 @@ void pmu_setup(){
 void main(void){
 
     static volatile bool master_done = false;
-
+    // while(1){}
     if(cpu_is_master()){
         spin_lock(&print_lock);
         printf("Bao bare-metal test guest\n");
         spin_unlock(&print_lock);
 
         //irq_set_handler(UART_IRQ_ID, uart_rx_handler);
-        irq_set_handler(TIMER_IRQ_ID, timer_handler);
-        irq_set_handler(IPI_IRQ_ID, ipi_handler);
-        irq_set_handler(PMU_IRQ_ID, pmu_handler);
+        // irq_set_handler(TIMER_IRQ_ID, timer_handler);
+        // irq_set_handler(IPI_IRQ_ID, ipi_handler);
+        // irq_set_handler(PMU_IRQ_ID, pmu_handler);
 
-        uart_enable_rxirq();
+        // uart_enable_rxirq();
 
         //timer_set(TIMER_INTERVAL);
         //irq_enable(TIMER_IRQ_ID);
         //irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
-        irq_enable(PMU_IRQ_ID);
-        irq_set_prio(PMU_IRQ_ID, IRQ_MAX_PRIO);
+        // irq_enable(PMU_IRQ_ID);
+        // irq_set_prio(PMU_IRQ_ID, IRQ_MAX_PRIO);
 
         master_done = true;
     }
 
     //irq_enable(UART_IRQ_ID);
     //irq_set_prio(UART_IRQ_ID, IRQ_MAX_PRIO);
-    irq_enable(IPI_IRQ_ID);
-    irq_set_prio(IPI_IRQ_ID, IRQ_MAX_PRIO);
+    // irq_enable(IPI_IRQ_ID);
+    // irq_set_prio(IPI_IRQ_ID, IRQ_MAX_PRIO);
 
     while(!master_done);
 
-    pmu_setup();
+    // pmu_setup();
 
     spin_lock(&print_lock);
     printf("cpu %d up\n", get_cpuid());

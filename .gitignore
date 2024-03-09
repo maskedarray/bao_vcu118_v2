@@ -13,6 +13,11 @@ linux_image/
 *.elf
 *.d
 *.o
+*.asm
+*.debug
+*.elf
+*.dump
 bao-hypervisor/configs/alsaqr-baremetal/config.S
 bao-hypervisor/configs/alsaqr-linux/config.S
 /fw_payload.elf
+bao_vcu118_v2.code-workspace

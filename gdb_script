@@ -1,0 +1,16 @@
+monitor reset halt
+thread 1
+load fw_payload.elf
+set $pc = 0x0000000080000000
+
+thread 2
+set $pc = 0x0000000080000000
+
+thread 3
+set $pc = 0x0000000080000000
+
+thread 4
+set $pc = 0x0000000080000000
+
+thread 1
+info threads

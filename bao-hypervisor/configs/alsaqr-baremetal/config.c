@@ -18,6 +18,7 @@ struct config config = {
             },
 
             .entry = 0x80200000,
+            .cpu_affinity = 0x2,
 
             .platform = {
                 .cpu_num = 1,
