@@ -123,7 +123,13 @@
     LOAD   x29, 28*REGLEN(x31)
     LOAD   x30, 29*REGLEN(x31) 
     LOAD   x31, 30*REGLEN(x31)  
-
+    fence
+	sfence.vma
+	fence.i
+    csrw 0x701, 1
+    fence
+	sfence.vma
+	fence.i
     sret
     j   .
 .endm

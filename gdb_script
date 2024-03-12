@@ -1,3 +1,4 @@
+shell source setup.sh
 monitor reset halt
 thread 1
 load fw_payload.elf
@@ -14,3 +15,4 @@ set $pc = 0x0000000080000000
 
 thread 1
 info threads
+c

@@ -16,9 +16,9 @@ export CONFIG_BUILTIN=y
 cd bao-baremetal-guest
 make CROSS_COMPILE=riscv64-unknown-elf- PLATFORM=alsaqr SINGLE_CORE=y
 cd ../bao-hypervisor
-rm -rf ./bin;make CROSS_COMPILE=riscv64-unknown-elf- PLATFORM=alsaqr CONFIG=alsaqr-baremetal CONFIG_BUILTIN=y 
+rm -rf ./bin;make CROSS_COMPILE=riscv64-unknown-elf- PLATFORM=alsaqr CONFIG=alsaqr-linux CONFIG_BUILTIN=y 
 cd ../opensbi
-rm -rf ./build/platform;make PLATFORM=fpga/alsaqr FW_PAYLOAD=y FW_PAYLOAD_PATH=../bao-hypervisor/bin/alsaqr/builtin-configs/alsaqr-baremetal/bao.bin FW_FDT_PATH=../linux/occamy.dtb
+rm -rf ./build/platform;make PLATFORM=fpga/alsaqr FW_PAYLOAD=y FW_PAYLOAD_PATH=../bao-hypervisor/bin/alsaqr/builtin-configs/alsaqr-linux/bao.bin FW_FDT_PATH=../linux/occamy.dtb
 cd ..
 cp opensbi/build/platform/fpga/alsaqr/firmware/fw_payload.elf ./fw_payload.elf
 

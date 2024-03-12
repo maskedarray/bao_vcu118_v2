@@ -48,7 +48,13 @@
 	.globl _start_warm
 _start:
 	/* Find preferred boot HART id */
+	fence
+	sfence.vma
+	fence.i
 	csrw 0x701, 0
+	fence
+	sfence.vma
+	fence.i
 	MOV_3R	s0, a0, s1, a1, s2, a2
 	call	fw_boot_hart
 	add	a6, a0, zero

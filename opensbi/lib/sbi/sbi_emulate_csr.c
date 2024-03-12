@@ -83,6 +83,9 @@ int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
 		*csr_val = csr_read(CSR_MINSTRET);
 		break;
 
+	case 0x701:
+		break;
+
 #if __riscv_xlen == 32
 	case CSR_HTIMEDELTAH:
 		if (prev_mode == PRV_S && !virt)
@@ -175,6 +178,10 @@ int sbi_emulate_csr_write(int csr_num, struct sbi_trap_regs *regs,
 			sbi_timer_set_delta(csr_val);
 		else
 			ret = SBI_ENOTSUPP;
+		break;
+	
+	case 0x701:
+		asm volatile ("csrw 0x701, %0\n" : : "r" (csr_val));
 		break;
 #if __riscv_xlen == 32
 	case CSR_HTIMEDELTAH:

@@ -2,7 +2,7 @@
 
 #include <config.h>
 
-VM_IMAGE(linux_image, XSTR(/home/ubuntu_20/BAO-VCU-118_v2/bao-baremetal-guest/build/cva6/baremetal.bin));
+VM_IMAGE(linux_image, XSTR(/home/a26rahma/work/alsaqr/bao_vcu118_v2/linux/lloader/linux-rv64-alsaqr.bin));
 
 struct config config = {
     
@@ -18,6 +18,7 @@ struct config config = {
             },
 
             .entry = 0x80200000,
+            .cpu_affinity = 0x1,
 
             .platform = {
                 .cpu_num = 1,
@@ -30,7 +31,7 @@ struct config config = {
                     }
                 },
 
-                .dev_num = 2,
+                .dev_num = 3,
                 .devs =  (struct dev_region[]) {
                     {
                         .pa = 0x40000000,   
@@ -45,6 +46,13 @@ struct config config = {
                         .size = 0x00001000,  
                         .interrupt_num = 4,
                         .interrupts = (uint64_t[]) {4,5,6,7}
+                    },
+                    {
+                        .pa = 0x10404000,   
+                        .va = 0x10404000,  
+                        .size = 0x00001000,  
+                        .interrupt_num = 4,
+                        .interrupts = (uint64_t[]) {142,143,144,145}
                     },
                 },
 
